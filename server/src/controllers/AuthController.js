@@ -1,6 +1,6 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const UserModel = require('../models/UserModel');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import UserModel from '../models/UserModel.js';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -105,4 +105,4 @@ class AuthController {
   }
 }
 
-module.exports = AuthController;
+export default AuthController;

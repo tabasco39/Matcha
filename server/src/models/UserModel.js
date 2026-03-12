@@ -1,4 +1,4 @@
-const db = require('../config/database');
+import db from '../config/database.js';
 
 class UserModel {
   static async findAll() {
@@ -42,4 +42,4 @@ class UserModel {
   }
 }
 
-module.exports = UserModel;
+export default UserModel;

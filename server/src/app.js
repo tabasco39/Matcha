@@ -1,9 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const cookieParser = require('cookie-parser');
-const routes = require('./routes');
-const errorHandler = require('./middlewares/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import routes from './routes/index.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 const app = express();
 
@@ -16,8 +16,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', routes);
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+}, routes);
 
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

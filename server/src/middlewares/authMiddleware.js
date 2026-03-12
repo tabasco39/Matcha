@@ -1,8 +1,7 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
   const token = req.cookies?.token;
-
   if (!token) {
     return res.status(401).json({ success: false, message: 'Non authentifié' });
   }
@@ -16,4 +15,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;
