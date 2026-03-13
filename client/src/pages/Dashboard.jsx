@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,9 +9,13 @@ const MOCK_PROFILES = [
   { id: 4, name: 'Antoine', age: 31, bio: 'Architecte de jour, astronome amateur de nuit. Curieux de tout, ouvert à tout.', tags: ['Architecture', 'Astronomie', 'Randonnée'], avatar: 'A' },
 ];
 
+const isProfileIncomplete = (user) =>
+  !user?.bio || !user?.gender || !user?.preference;
+
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -31,7 +36,7 @@ export default function Dashboard() {
           <button className="nav-btn" title="Messages">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </button>
-          <button className="nav-btn" title="Profil">
+          <button className="nav-btn" title="Profil" onClick={() => navigate('/profile')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </button>
         </nav>
@@ -43,6 +48,26 @@ export default function Dashboard() {
           </button>
         </div>
       </header>
+
+      {isProfileIncomplete(user) && !bannerDismissed && (
+        <div className="profile-banner">
+          <div className="profile-banner-content">
+            <span className="profile-banner-icon">✦</span>
+            <div>
+              <strong>Votre profil est incomplet</strong>
+              <p>Complétez votre profil pour apparaître dans les suggestions et trouver des correspondances.</p>
+            </div>
+          </div>
+          <div className="profile-banner-actions">
+            <button className="banner-btn-primary" onClick={() => navigate('/profile')}>
+              Compléter mon profil
+            </button>
+            <button className="banner-btn-dismiss" onClick={() => setBannerDismissed(true)} aria-label="Fermer">
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="dashboard-main">
         <div className="discover-header">

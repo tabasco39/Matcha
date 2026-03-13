@@ -39,6 +39,21 @@ class UserController {
     }
   }
 
+  static async updateProfile(req, res, next) {
+    try {
+      const allowed = ['first_name', 'last_name', 'bio', 'birth_date', 'gender', 'preference', 'location', 'interests'];
+      const data = {};
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) data[key] = req.body[key] || null;
+      }
+      await UserModel.update(req.user.id, data);
+      const user = await UserModel.findById(req.user.id);
+      res.json({ success: true, data: user });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async remove(req, res, next) {
     try {
       const affected = await UserModel.delete(req.params.id);

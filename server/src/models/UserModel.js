@@ -10,7 +10,7 @@ class UserModel {
 
   static async findById(id) {
     const [rows] = await db.query(
-      'SELECT id, username, email, first_name, last_name, bio, birth_date, created_at FROM users WHERE id = ?',
+      'SELECT id, username, email, first_name, last_name, bio, birth_date, gender, preference, location, interests, created_at FROM users WHERE id = ?',
       [id]
     );
     return rows[0] || null;
