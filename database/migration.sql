@@ -13,17 +13,14 @@ CREATE TABLE IF NOT EXISTS users (
   last_name   VARCHAR(100) NOT NULL,
   bio         TEXT         DEFAULT NULL,
   birth_date  DATE         DEFAULT NULL,
+  gender      VARCHAR(20)  DEFAULT NULL,
+  preference  VARCHAR(20)  DEFAULT NULL,
+  location    VARCHAR(55)  DEFAULT NULL,
+  can_located BOOLEAN      DEFAULT NULL,
+  interests   VARCHAR(500) DEFAULT NULL, -- valeurs séparées par |
   created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
--- Colonnes additionnelles profil
-ALTER TABLE users
-ADD COLUMN IF NOT EXISTS gender     VARCHAR(20)  DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS preference VARCHAR(20)  DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS location   VARCHAR(55)  DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS can_located BOOLEAN     DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS interests  VARCHAR(500) DEFAULT NULL; -- valeurs séparées par |
 
 -- Table images (max 5 par utilisateur)
 CREATE TABLE IF NOT EXISTS images (
