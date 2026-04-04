@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { likeController } from '../controllers/likesController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
+
+const router = Router();
+
+router.use(authMiddleware);
+
+// Get all likes for a user
+router.get('/:userId', likeController.likeUser);
