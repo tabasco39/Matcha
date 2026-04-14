@@ -11,3 +11,5 @@ export const uploadImage = (file) => {
 };
 
 export const deleteImage = (id) => api.delete(`/images/${id}`);
+
+export const getAllProfile = () => api.get('/users')

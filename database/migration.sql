@@ -34,3 +34,19 @@ CREATE TABLE IF NOT EXISTS images (
     REFERENCES users(id)
     ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS likes (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED NOT NULL,
+  liked_user_id INT UNSIGNED NOT NULL,
+  created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_like_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_like_liked_user
+    FOREIGN KEY (liked_user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+

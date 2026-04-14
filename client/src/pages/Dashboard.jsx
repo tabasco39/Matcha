@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+
+import { getAllProfile } from '../api/user';
 
 const MOCK_PROFILES = [
   { id: 1, name: 'Sophie', age: 26, bio: 'Passionnée de voyages et de photographie. Aime les soirées jazz et les cafés parisiens.', tags: ['Voyages', 'Photo', 'Jazz'], avatar: 'S' },
@@ -16,11 +18,23 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [users , setUsers] = useState([])
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
+
+  useEffect(() => 
+    {
+      const loadData = async () => 
+      {
+        const response =  await getAllProfile();
+        console.log("Liste des profiles : ", response.data);
+      }
+        loadData();
+    }, []
+  )
 
   return (
     <div className="dashboard">
