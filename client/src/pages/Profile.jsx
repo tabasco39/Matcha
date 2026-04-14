@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { updateProfile, getMyImages, uploadImage, deleteImage } from '../api/user.js';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || ''
 const MAX_IMAGES = 5;
 
 const GENDERS = [

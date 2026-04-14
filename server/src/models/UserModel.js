@@ -3,7 +3,7 @@ import db from '../config/database.js';
 class UserModel {
   static async findAll() {
     const [rows] = await db.query(
-      'SELECT id, username, email, first_name, last_name, created_at FROM users'
+      'SELECT id, username, email, first_name, last_name, bio, birth_date, gender, preference, location, interests, created_at FROM users'
     );
     return rows;
   }

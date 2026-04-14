@@ -4,12 +4,17 @@ import { useNavigate } from 'react-router-dom';
 
 import { getAllProfile } from '../api/user';
 
-const MOCK_PROFILES = [
-  { id: 1, name: 'Sophie', age: 26, bio: 'Passionnée de voyages et de photographie. Aime les soirées jazz et les cafés parisiens.', tags: ['Voyages', 'Photo', 'Jazz'], avatar: 'S' },
-  { id: 2, name: 'Lucas', age: 29, bio: 'Cuisinier amateur, lecteur invétéré. À la recherche d\'une âme avec qui partager de bons repas.', tags: ['Cuisine', 'Lecture', 'Art'], avatar: 'L' },
-  { id: 3, name: 'Chloé', age: 24, bio: 'Danseuse contemporaine. La vie est trop courte pour ne pas vivre pleinement chaque moment.', tags: ['Danse', 'Musique', 'Nature'], avatar: 'C' },
-  { id: 4, name: 'Antoine', age: 31, bio: 'Architecte de jour, astronome amateur de nuit. Curieux de tout, ouvert à tout.', tags: ['Architecture', 'Astronomie', 'Randonnée'], avatar: 'A' },
-];
+const calcAge = (birthDate) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+};
+
+const parseInterests = (str) =>
+  str ? str.split('|').map((s) => s.trim()).filter(Boolean) : [];
 
 const isProfileIncomplete = (user) =>
   !user?.bio || !user?.gender || !user?.preference;
@@ -18,23 +23,20 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [bannerDismissed, setBannerDismissed] = useState(false);
-  const [users , setUsers] = useState([])
+  const [users, setUsers] = useState([]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  useEffect(() => 
-    {
-      const loadData = async () => 
-      {
-        const response =  await getAllProfile();
-        console.log("Liste des profiles : ", response.data);
-      }
-        loadData();
-    }, []
-  )
+  useEffect(() => {
+    const loadData = async () => {
+      const { data } = await getAllProfile();
+      setUsers(data.data);
+    };
+    loadData();
+  }, []);
 
   return (
     <div className="dashboard">
@@ -90,17 +92,19 @@ export default function Dashboard() {
         </div>
 
         <div className="profiles-grid">
-          {MOCK_PROFILES.map((profile) => (
+          {users.map((profile) => (
             <div key={profile.id} className="profile-card">
-              <div className="profile-avatar">{profile.avatar}</div>
+              <div className="profile-avatar">{profile.first_name?.[0]?.toUpperCase()}</div>
               <div className="profile-info">
                 <div className="profile-name-row">
-                  <h3>{profile.name}</h3>
-                  <span className="profile-age">{profile.age} ans</span>
+                  <h3>{profile.first_name} {profile.last_name}</h3>
+                  {profile.birth_date && (
+                    <span className="profile-age">{calcAge(profile.birth_date)} ans</span>
+                  )}
                 </div>
                 <p className="profile-bio">{profile.bio}</p>
                 <div className="profile-tags">
-                  {profile.tags.map((tag) => (
+                  {parseInterests(profile.interests).map((tag) => (
                     <span key={tag} className="tag">{tag}</span>
                   ))}
                 </div>

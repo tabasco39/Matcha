@@ -1,4 +1,4 @@
-import api from './auth.js';
+import api from '../service/axios';
 
 export const updateProfile = (data) => api.put('/users/profile', data);
 
