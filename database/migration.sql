@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   preference  VARCHAR(20)  DEFAULT NULL,
   location    VARCHAR(55)  DEFAULT NULL,
   can_located BOOLEAN      DEFAULT NULL,
+  is_verified BOOLEAN      NOT NULL DEFAULT FALSE,
   interests   VARCHAR(500) DEFAULT NULL, -- valeurs séparées par |
   created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -50,3 +51,14 @@ CREATE TABLE IF NOT EXISTS likes (
     ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS email_tokens (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED NOT NULL,
+  token       VARCHAR(255) NOT NULL,
+  type        VARCHAR(50) NOT NULL, -- 'verification' ou 'reset_password'
+  expires_at  DATETIME NOT NULL,
+  used_at    DATETIME DEFAULT NULL,
+  created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_token (token),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

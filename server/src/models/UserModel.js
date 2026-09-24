@@ -40,6 +40,12 @@ class UserModel {
     const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
     return result.affectedRows;
   }
+
+  static async isVerified(id) {
+    const [rows] = await db.query('SELECT is_verified FROM users WHERE id = ?', [id]);
+    return rows[0] ? rows[0].is_verified : null;
+  }
+  
 }
 
 export default UserModel;

@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import UserModel from '../models/UserModel.js';
+import EmailTokenModel from '../models/EmailTokenModel.js';
+import { sendEmailVerification } from '../services/mailer.js';
+import crypto from 'crypto';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -29,6 +32,9 @@ class AuthController {
       }
 
       const hashed = await bcrypt.hash(password, 12);
+      const mail_token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const type = 'verification';
 
       const id = await UserModel.create({
         username,
@@ -38,18 +44,57 @@ class AuthController {
         last_name,
         birth_date: birth_date || null,
       });
+      console.log('User created with ID:', id);
+      await EmailTokenModel.create({
+        user_id: id,
+        token: mail_token,
+        type : type,
+        expires_at : expiresAt,
+      });
+      console.log('Email token created for user ID:', id, ' with token:', mail_token, ' and expires at:', expiresAt);
 
-      const user = await UserModel.findById(id);
+      await sendEmailVerification(email, mail_token);
+      console.log('Verification email sent to:', email);
 
-      const token = jwt.sign(
-        { id: user.id, email: user.email, username: user.username },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-      );
+      // const user = await UserModel.findById(id);
+      return res.status(201).json({
+        success: true,
+        message: 'Compte créé, vérifie ton email pour activer ton compte',
+      });
 
-      res.cookie('token', token, COOKIE_OPTIONS);
-      res.status(201).json({ success: true, data: user });
     } catch (err) {
+      next(err);
+    }
+  }
+
+  static async verifyEmail(req, res, next) {
+    try {
+        const { token } = req.query;
+        const emailToken = await EmailTokenModel.findByToken(token);
+        if (!emailToken) {
+          return res.status(400).json({ success: false, message: 'Token invalide' });
+        }
+        console.log('====>Verifying email with token:', token, ' found user_id:', emailToken.user_id);
+
+        const date = new Date();
+        console.log('====>Current date:', date, ' and token expires at:', emailToken.expires_at);
+        if (new Date(emailToken.expires_at) < date) {
+            return res.status(400).json({ success: false, message: 'Token expiré' });
+        }
+
+        const user = await UserModel.findById(emailToken.user_id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+        }
+
+        await UserModel.update(user.id, { is_verified: true });
+        console.log('====>Email verified for user ID:', user.id , ' and is_verified:', true);
+        await EmailTokenModel.delete(emailToken.id);
+
+        res.json({ success: true, message: 'Email vérifié avec succès' });
+
+    }
+    catch (err) {
       next(err);
     }
   }
@@ -70,6 +115,11 @@ class AuthController {
       const valid = await bcrypt.compare(password, user.password);
       if (!valid) {
         return res.status(401).json({ success: false, message: 'Identifiants invalides' });
+      }
+
+      const isVerified = await UserModel.isVerified(user.id);
+      if (!isVerified) {
+        return res.status(403).json({ success: false, message: 'Veuillez vérifier votre email avant de vous connecter' });
       }
 
       const token = jwt.sign(
