@@ -1,6 +1,6 @@
 import db from '../config/database.js';
 
-class EmailTokenModel {
+class TokenModel {
     static async create(data) {
         const [result] = await db.query('INSERT INTO email_tokens SET ?', [data]);
         return result.insertId;
@@ -18,4 +18,4 @@ class EmailTokenModel {
 
 }
 
-export default EmailTokenModel;
+export default TokenModel;

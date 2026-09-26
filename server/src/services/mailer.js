@@ -10,18 +10,33 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendEmailVerification = async (to, token) => {
-    const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+export const sendEmailVerification = async (to, link, type) => {
+    // const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+    let title , content ;
 
+    if (type === 'verification')
+    {
+        title = "Vérification de votre adresse email";
+        content = `
+            <p>Bonjour,</p>
+            <p>Veuillez cliquer sur le lien ci-dessous pour vérifier votre adresse email :</p>
+            <p><a href="${link}">${link}</a></p>
+        `
+    }
+    else
+    {
+        title = "Demande de modification de votre mot de passe";
+        content = `
+            <p>Bonjour,</p>
+            <p>Veuillez cliquer sur le lien ci-dessous pour modifier votre adresse mot de passe :</p>
+            <p><a href="${link}">${link}</a></p>
+        `
+    }
     await transporter.sendMail({
         from: process.env.EMAIL_FROM,
         to: to,
-        subject: "Vérification de votre adresse email",
-        html: `
-            <p>Bonjour,</p>
-            <p>Veuillez cliquer sur le lien ci-dessous pour vérifier votre adresse email :</p>
-            <p><a href="${verificationLink}">${verificationLink}</a></p>
-        `,
+        subject: title,
+        html: content,
     });
     console.log(`Verification email sent to ${to}`);
 };

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { verifyEmail } from '../api/auth';
+import { verifyToken, verifyEmail } from '../api/auth';
+import { ErrorComponent } from '../components/ErrorComponent.jsx';
+
 
 export default function VerifyEmail() {
 
     const [searchParams] = useSearchParams();
     const token_mail = searchParams.get('token');
-
+    const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
@@ -20,28 +22,35 @@ export default function VerifyEmail() {
 
         const verify = async () => {
             try {
-                const res = await verifyEmail(token_mail);
-                setMessage(res.data.message);
+                const res = await verifyToken(token_mail);
+                if (res.status != 200)
+                {
+                  setError(res.status);
+                  setMessage(res.data.message);
+                } else{
+                  const res = await verifyEmail(token_mail);
+                  if (res.status != 200)
+                  {
+                    setError(res.status);
+                    setMessage(res.data.message);
+                  } else
+                    setSuccess(true);
+                }
             } catch (err) {
                 setError(err.response?.data?.message || 'An error occurred');
             } finally {
                 setLoading(false);
             }
-        
-    };
-    verify();
+        };
+        verify();
     }, [token_mail]);
 
     return (
         <div className="verify-email-page">
         <div className="verify-email-card">
           {loading && <div className="spinner" />}
-
-          {!loading && message && (
-            // <>
-            //   <p className="success-message">{message}</p>
-            //   <Link to="/login">Se connecter</Link>
-            // </>
+          {error && message && <ErrorComponent message={ message } status={ error } />}
+          {!loading && success && (
             <div className="verify-success">
               <div className="success-icon">
                 <svg viewBox="0 0 24 24" width="80" height="80" fill="none">

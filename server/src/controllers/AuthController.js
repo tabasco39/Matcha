@@ -1,9 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import UserModel from '../models/UserModel.js';
-import EmailTokenModel from '../models/EmailTokenModel.js';
 import { sendEmailVerification } from '../services/mailer.js';
 import crypto from 'crypto';
+import TokenModel from '../models/TokenModel.js';
+import { create } from 'domain';
+import { type } from 'os';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -35,6 +37,8 @@ class AuthController {
       const mail_token = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       const type = 'verification';
+      const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${mail_token}`;
+
 
       const id = await UserModel.create({
         username,
@@ -44,19 +48,18 @@ class AuthController {
         last_name,
         birth_date: birth_date || null,
       });
-      console.log('User created with ID:', id);
-      await EmailTokenModel.create({
+
+      await TokenModel.create({
         user_id: id,
         token: mail_token,
         type : type,
         expires_at : expiresAt,
       });
       console.log('Email token created for user ID:', id, ' with token:', mail_token, ' and expires at:', expiresAt);
+      await sendEmailVerification(email, verificationLink, type);
 
-      await sendEmailVerification(email, mail_token);
       console.log('Verification email sent to:', email);
 
-      // const user = await UserModel.findById(id);
       return res.status(201).json({
         success: true,
         message: 'Compte créé, vérifie ton email pour activer ton compte',
@@ -67,36 +70,47 @@ class AuthController {
     }
   }
 
-  static async verifyEmail(req, res, next) {
+  static async verifyToken(req, res, next) {
     try {
         const { token } = req.query;
-        const emailToken = await EmailTokenModel.findByToken(token);
-        if (!emailToken) {
+        const tokenModel = await TokenModel.findByToken(token);
+        if (!tokenModel) {
           return res.status(400).json({ success: false, message: 'Token invalide' });
         }
-        console.log('====>Verifying email with token:', token, ' found user_id:', emailToken.user_id);
 
         const date = new Date();
-        console.log('====>Current date:', date, ' and token expires at:', emailToken.expires_at);
-        if (new Date(emailToken.expires_at) < date) {
+        if (new Date(tokenModel.expires_at) < date) {
             return res.status(400).json({ success: false, message: 'Token expiré' });
         }
 
-        const user = await UserModel.findById(emailToken.user_id);
+        const user = await UserModel.findById(tokenModel.user_id);
         if (!user) {
             return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
         }
-
-        await UserModel.update(user.id, { is_verified: true });
-        console.log('====>Email verified for user ID:', user.id , ' and is_verified:', true);
-        await EmailTokenModel.delete(emailToken.id);
-
-        res.json({ success: true, message: 'Email vérifié avec succès' });
-
+        if (user.is_verified === false) {
+            return res.status(400).json({ success: false, message: 'User mail non vérifié' });
+        }
+        res.status(200).json({ success: true, message: 'Token vérifié avec succès' });
     }
     catch (err) {
       next(err);
     }
+  }
+
+  static async verifyEmail(req, res, next)
+  {
+    const { token } = req.query;
+    const tokenModel = await TokenModel.findByToken(token);
+    const user = await UserModel.findById(tokenModel.user_id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+        }
+        if (user.is_verified) {
+            return res.status(400).json({ success: false, message: 'Email déjà vérifié' });
+        }
+
+        await UserModel.update(user.id, { is_verified: true });
+        await TokenModel.delete(tokenModel.id);
   }
 
   static async login(req, res, next) {
@@ -149,6 +163,80 @@ class AuthController {
         return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
       }
       res.json({ success: true, data: user });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ success: false, message: 'Email requis' });
+      }
+
+      const user = await UserModel.findByEmail(email);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+      }
+      console.log("user = " , user);
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+      const type = 'resetpassword';
+
+      await TokenModel.create({
+        user_id: user.id,
+        token: resetToken,
+        type: type,
+        created_at: new Date(),
+        expires_at: expiresAt
+      });
+
+      const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+      await sendEmailVerification(user.email, resetLink, type);
+
+      res.json({ success: true, message: 'Email de réinitialisation de mot de passe envoyé' });
+      console.log('Email de réinitialisation de mot de passe envoyé');
+
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async resetPassword(req, res, next) {
+    try {
+      const { newpassword, confirmnewpassword } = req.body;
+      const { token } = req.query;
+      if (!token || !newpassword || !confirmnewpassword) {
+        return res.status(400).json({ success: false, message: 'Tous les champs sont requis' });
+      }
+
+      if (newpassword !== confirmnewpassword) {
+        return res.status(400).json({ success: false, message: 'Les mots de passe ne correspondent pas' });
+      }
+      
+      const tokenModel = await TokenModel.findByToken(token);
+        if (!tokenModel) {
+          return res.status(400).json({ success: false, message: 'Token invalide' });
+        }
+
+      const date = new Date();
+      if (new Date(tokenModel.expires_at) < date) {
+          return res.status(400).json({ success: false, message: 'Token expiré' });
+      }
+      
+      const user = await UserModel.findById(tokenModel.user_id);
+      if (!user) {
+          return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+      }
+
+      const hashedPassword = await bcrypt.hash(newpassword, 10);
+      await UserModel.update(user.id, { password: hashedPassword });
+      await TokenModel.delete(tokenModel.id);
+      console.log("Update vitaaaaaaaaaaaaaaaaaa");
+
+      res.json({ success: true, message: 'Mot de passe réinitialisé avec succès' });
+
     } catch (err) {
       next(err);
     }

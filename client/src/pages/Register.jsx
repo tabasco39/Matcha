@@ -29,9 +29,6 @@ export default function Register() {
     try {
       const res = await register(form);
       setSuccess(res.data.message);
-      console.log('Registration successful:', res.data.message);
-      // setUser(res.data.data);
-      // navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Une erreur est survenue');
     } finally {

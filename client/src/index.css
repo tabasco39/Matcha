@@ -81,7 +81,33 @@
   /* word-break: break-all; */
 }
 /* ------------------------------ */
+/* animation error */
+.error-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
 
+.heart-left {
+  animation: break-left 1.2s ease-in-out infinite;
+  transform-origin: center right;
+}
+
+.heart-right {
+  animation: break-right 1.2s ease-in-out infinite;
+  transform-origin: center left;
+}
+
+@keyframes break-left {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50% { transform: translateX(-3px) rotate(-3deg); }
+}
+
+@keyframes break-right {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50% { transform: translateX(3px) rotate(3deg); }
+}
+/* ------------------------------------ */
 
 @keyframes spin {
   to { transform: rotate(360deg); }

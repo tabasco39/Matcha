@@ -86,6 +86,9 @@ export default function Login() {
             Pas encore de compte ?{' '}
             <Link to="/register">Créer un compte</Link>
           </p>
+          <p className="auth-switch">
+            <Link to="/forgot-password">Mot de passe oublié ?</Link>
+          </p>
         </div>
       </div>
     </div>

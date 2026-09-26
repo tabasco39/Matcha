@@ -7,10 +7,14 @@ run:
 	@echo "To stop the app, run 'make stop'"
 
 stop:
+	docker compose down 
+	@echo "Matcha has been stopped."
+
+remove: 
 	docker compose down -v
 	docker volume rm matcha_uploads
 	docker volume rm matcha_db_data
-	@echo "Matcha has been stopped."
+	@echo "Matcha has been removed."
 
 rmImages:
 	docker image rm matcha-client:latest mysql:8.0 phpmyadmin:latest
