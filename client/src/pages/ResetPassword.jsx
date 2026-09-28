@@ -27,15 +27,10 @@ export default function ResetPassword() {
         const verify = async () => {
         try {
             const res = await verifyToken(token);
-            if (res.status != 200)
-            {
-                setError(res.status);
-                setMessage(res.data.message);
-            }
-            else
-                setMessage(res.data.message)
+            setMessage(res.data.message)
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            setError(err.response?.status);
+            setMessage(err.response?.data?.message || 'An error occurred');
         } finally {
             setLoading(false);
         }
@@ -47,25 +42,18 @@ export default function ResetPassword() {
         e.preventDefault();
         setLoading(true);
         try {
-            console.log("Submit ---------------");
             const res = await resetPassword({...form, token});
-            console.log("status = ", res.status);
-            console.log("Data = ", res.data);
-            if (res.status != 200)
-            {
-                setError(res.status);
-                setMessage(res.data.message);
-            }
-            else
-                navigate('/login');
+            navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
-            setMessage('');
+            setError(err.response?.status);
+            setMessage(err.response?.data?.message || 'An error occurred');
         } finally {
             setLoading(false);
         }
     };
-
+    if (error && message) {
+        return <ErrorComponent message={message} status={error} />;
+    }
     return (
         <div className="auth-page">
             <div className="auth-left">
@@ -75,10 +63,7 @@ export default function ResetPassword() {
                 <p>Commencez votre histoire d'amour aujourd'hui.</p>
                 </div>
             </div>
-                { error ? (
-                            <ErrorComponent message={ message } status={ error } />
-                ) : (
-                    <div className="auth-right">
+                { <div className="auth-right">
                         <div className="auth-card">
                             <div className="auth-header">
                                 <h2>Bienvenu sur la changement de votre mot de passe</h2>
@@ -121,7 +106,7 @@ export default function ResetPassword() {
                             </p>
                         </div>
                     </div>
-                )}
+                }
         </div>
     );
 }

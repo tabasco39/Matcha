@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { forgotPassword } from '../api/auth';
 import { Link } from 'react-router-dom';
+import { ErrorComponent } from '../components/ErrorComponent.jsx';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -12,27 +14,31 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await forgotPassword(email);
-      setMessage(res.data.message);
-      setError('');
+        const res = await forgotPassword(email);
+        setMessage(res.data.message);
+        setSuccess(true);
+        setError('');       
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred');
-      setMessage('');
+        setError(err.response?.status || 'An error occurred');
+        setMessage(err.response?.data?.message || 'An error occurred');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
+    if (!success && message) {
+        return <ErrorComponent message={message} status={error} />;
+    }
 
   return (
     <div className="auth-page">
         <div className="auth-left">
             <div className="auth-brand">
-            <span className="brand-icon">♡</span>
-            <h1>Matcha</h1>
-            <p>Commencez votre histoire d'amour aujourd'hui.</p>
+                <span className="brand-icon">♡</span>
+                <h1>Matcha</h1>
+                <p>Commencez votre histoire d'amour aujourd'hui.</p>
             </div>
         </div>
-            { message ? (
+            { success ? (
                 <div className="auth-right">
                     <div className="auth-card">
                         <center>

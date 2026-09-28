@@ -101,6 +101,7 @@ class AuthController {
   {
     const { token } = req.query;
     const tokenModel = await TokenModel.findByToken(token);
+
     const user = await UserModel.findById(tokenModel.user_id);
         if (!user) {
             return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
@@ -108,9 +109,9 @@ class AuthController {
         if (user.is_verified) {
             return res.status(400).json({ success: false, message: 'Email déjà vérifié' });
         }
-
         await UserModel.update(user.id, { is_verified: true });
         await TokenModel.delete(tokenModel.id);
+        res.status(200).json({ success: true, message: 'Email vérifié avec succès' });
   }
 
   static async login(req, res, next) {

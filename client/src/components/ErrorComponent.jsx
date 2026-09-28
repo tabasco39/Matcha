@@ -1,6 +1,6 @@
-// import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-export function ErrorComponent(message, status){
+export function ErrorComponent({ message, status }){
     return (
         <div className="auth-page">
             <div className="auth-left">
@@ -34,6 +34,9 @@ export function ErrorComponent(message, status){
                         </svg>
                     </div>
                 </div>
+                <p>
+                  <Link to="/login">Aller à la connexion</Link>
+                </p>
             </div>
         </div>
     );

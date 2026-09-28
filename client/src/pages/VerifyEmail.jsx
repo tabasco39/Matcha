@@ -22,34 +22,26 @@ export default function VerifyEmail() {
 
         const verify = async () => {
             try {
-                const res = await verifyToken(token_mail);
-                if (res.status != 200)
-                {
-                  setError(res.status);
-                  setMessage(res.data.message);
-                } else{
-                  const res = await verifyEmail(token_mail);
-                  if (res.status != 200)
-                  {
-                    setError(res.status);
-                    setMessage(res.data.message);
-                  } else
-                    setSuccess(true);
-                }
+                  const res = await verifyToken(token_mail);
+                  const result = await verifyEmail(token_mail);
+                  setMessage(res.data, result.data);
+                  setSuccess(true);
             } catch (err) {
-                setError(err.response?.data?.message || 'An error occurred');
+                setError(err.response?.status);
+                setMessage(err.response?.data?.message || 'An error occurred');
             } finally {
                 setLoading(false);
             }
         };
         verify();
     }, [token_mail]);
-
+    if (error && message) {
+      return <ErrorComponent message={message} status={error} />;
+    }
     return (
         <div className="verify-email-page">
         <div className="verify-email-card">
           {loading && <div className="spinner" />}
-          {error && message && <ErrorComponent message={ message } status={ error } />}
           {!loading && success && (
             <div className="verify-success">
               <div className="success-icon">
