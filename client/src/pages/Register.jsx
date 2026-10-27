@@ -17,6 +17,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -30,12 +31,13 @@ export default function Register() {
       const res = await register(form);
       setSuccess(res.data.message);
     } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue');
+      setError(err.response?.status);
+      setMessage(err.response?.data?.message || 'Une erreur est survenue');
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="auth-page">
       <div className="auth-left">
@@ -167,7 +169,7 @@ export default function Register() {
                 />
               </div>
 
-              {error && <p className="form-error">{error}</p>}
+              {error && <p className="form-error">{error} : {message}</p>}
 
               <button type="submit" className="btn-primary" disabled={loading}>
                 {loading ? <span className="btn-spinner" /> : 'Créer mon compte'}

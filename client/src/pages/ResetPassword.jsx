@@ -2,11 +2,9 @@ import { useState, useEffect,  } from 'react';
 import { resetPassword } from '../api/auth';
 import { Link , useNavigate, useSearchParams} from 'react-router-dom';
 import { verifyToken } from '../api/auth';
-import { ErrorComponent } from '../components/ErrorComponent.jsx';
 
 export default function ResetPassword() {
     const navigate = useNavigate();
-    const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [searchParams] = useSearchParams();
@@ -51,9 +49,7 @@ export default function ResetPassword() {
             setLoading(false);
         }
     };
-    if (error && message) {
-        return <ErrorComponent message={message} status={error} />;
-    }
+
     return (
         <div className="auth-page">
             <div className="auth-left">
@@ -96,6 +92,9 @@ export default function ResetPassword() {
                                         autoComplete="current-password"
                                     />
                                 </div>
+
+                                {error && <p className="form-error">{error}</p>}
+
                                 <button type="submit" className="btn-primary" disabled={loading}>
                                 {loading ? <span className="btn-spinner" /> : 'Changer le mot de passe'}
                                 </button>

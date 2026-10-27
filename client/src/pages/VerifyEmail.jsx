@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate} from 'react-router-dom';
 import { verifyToken, verifyEmail } from '../api/auth';
-import { ErrorComponent } from '../components/ErrorComponent.jsx';
+// import { ErrorComponent } from '../components/ErrorComponent.jsx';
 
 
 export default function VerifyEmail() {
@@ -10,8 +10,8 @@ export default function VerifyEmail() {
     const token_mail = searchParams.get('token');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (!token_mail) {
@@ -19,7 +19,6 @@ export default function VerifyEmail() {
             setLoading(false);
             return;
         }
-
         const verify = async () => {
             try {
                   const res = await verifyToken(token_mail);
@@ -29,14 +28,18 @@ export default function VerifyEmail() {
             } catch (err) {
                 setError(err.response?.status);
                 setMessage(err.response?.data?.message || 'An error occurred');
+                setLoading(false);
             } finally {
                 setLoading(false);
             }
         };
         verify();
     }, [token_mail]);
+
     if (error && message) {
-      return <ErrorComponent message={message} status={error} />;
+      navigate('/error', {
+          state: { status: error, message:  message }
+      });
     }
     return (
         <div className="verify-email-page">

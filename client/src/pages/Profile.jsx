@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { updateProfile, getMyImages, uploadImage, deleteImage } from '../api/user.js';
 
@@ -120,8 +120,9 @@ export default function Profile() {
     setSuccess(false);
     try {
       const res = await updateProfile({ ...form, interests: joinInterests(interests) });
-      setUser(res.data.data);
-      setSuccess(true);
+      // setUser(res.data.data);
+      // setSuccess(true);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Une erreur est survenue');
     } finally {

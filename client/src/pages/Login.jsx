@@ -8,6 +8,7 @@ export default function Login() {
   const { setUser } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -24,11 +25,11 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Une erreur est survenue');
+      setMessage(err.response?.data?.message || 'Une erreur est survenue');
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="auth-page">
       <div className="auth-left">

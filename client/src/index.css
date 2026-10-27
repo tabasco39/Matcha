@@ -81,33 +81,6 @@
   /* word-break: break-all; */
 }
 /* ------------------------------ */
-/* animation error */
-.error-icon {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.25rem;
-}
-
-.heart-left {
-  animation: break-left 1.2s ease-in-out infinite;
-  transform-origin: center right;
-}
-
-.heart-right {
-  animation: break-right 1.2s ease-in-out infinite;
-  transform-origin: center left;
-}
-
-@keyframes break-left {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  50% { transform: translateX(-3px) rotate(-3deg); }
-}
-
-@keyframes break-right {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  50% { transform: translateX(3px) rotate(3deg); }
-}
-/* ------------------------------------ */
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -131,6 +104,104 @@ body {
   line-height: 1.6;
   min-height: 100vh;
 }
+
+/* ERROR LAYOUT */
+.error-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.error-content {
+  flex: 1;
+  background: linear-gradient(145deg, var(--rose) 0%, #5C0F30 60%, #3A0820 100%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.error-content h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.error-link a {
+  color: var(--white);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.auth-switch a:hover {
+  color: var(--rose-light);
+  text-decoration: underline;
+}
+
+/* animation error */
+.error-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.heart-left {
+  animation: drift-left 2.5s ease-in-out infinite;
+  transform-origin: 100px 100px;
+}
+
+.heart-right {
+  animation: drift-right 2.5s ease-in-out infinite;
+  transform-origin: 100px 100px;
+}
+
+@keyframes drift-left {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-6px, 2px) rotate(-4deg); }
+}
+
+@keyframes drift-right {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(6px, 2px) rotate(4deg); }
+}
+
+.shard {
+  opacity: 0;
+  animation: fall 2.5s ease-in infinite;
+}
+
+.shard-1 {
+  animation-delay: 0.3s;
+}
+
+.shard-2 {
+  animation-delay: 0.6s;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(25px) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px) rotate(200deg);
+  }
+}
+/* ------------------------------------ */
 
 /* ============================================
    AUTH LAYOUT
@@ -225,6 +296,25 @@ body {
 
 .auth-header {
   margin-bottom: 2.5rem;
+}
+
+.header-error{
+  margin-bottom: 2.5rem;
+}
+
+.header-error p {
+  color: var(--gray);
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.header-error h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+  color: var(--charcoal);
 }
 
 .auth-header h2 {

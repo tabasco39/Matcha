@@ -1,7 +1,7 @@
 import { useState, useEffect} from 'react';
 import { forgotPassword } from '../api/auth';
-import { Link } from 'react-router-dom';
-import { ErrorComponent } from '../components/ErrorComponent.jsx';
+import { Link, useNavigate } from 'react-router-dom';
+// import { ErrorComponent } from '../components/ErrorComponent.jsx';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -19,15 +19,12 @@ export default function ForgotPassword() {
         setSuccess(true);
         setError('');       
     } catch (err) {
-        setError(err.response?.status || 'An error occurred');
-        setMessage(err.response?.data?.message || 'An error occurred');
+        setError(err.response?.status || '500');
+        setMessage(err.response?.data?.message || 'An error occurred')
     } finally {
         setLoading(false);
     }
   };
-    if (!success && message) {
-        return <ErrorComponent message={message} status={error} />;
-    }
 
   return (
     <div className="auth-page">
@@ -94,6 +91,9 @@ export default function ForgotPassword() {
                                 autoComplete="email"
                             />
                             </div>
+
+                            {error && <p className="form-error">{error} : {message}</p>}
+
                             <button type="submit" className="btn-primary" disabled={loading}>
                             {loading ? <span className="btn-spinner" /> : 'Envoyer le lien'}
                             </button>

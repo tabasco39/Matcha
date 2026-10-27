@@ -234,7 +234,6 @@ class AuthController {
       const hashedPassword = await bcrypt.hash(newpassword, 10);
       await UserModel.update(user.id, { password: hashedPassword });
       await TokenModel.delete(tokenModel.id);
-      console.log("Update vitaaaaaaaaaaaaaaaaaa");
 
       res.json({ success: true, message: 'Mot de passe réinitialisé avec succès' });
 
